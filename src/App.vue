@@ -1,11 +1,18 @@
 <template>
 <!-- 根路由出口 -->
-  <!-- <router-view/> -->
-  <div>
-    <van-button>按钮</van-button>
-    <div class="box">示例元素</div>
-  </div>
+  <router-view/>
 </template>
+
+<script>
+import request from '@/utils/request.js'
+
+request({
+  method: 'GET',
+  url: '/front/ad/getAdList'
+})
+export default {
+}
+</script>
 
 <style lang="scss">
 .box {
