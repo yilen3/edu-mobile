@@ -35,9 +35,16 @@
 </template>
 
 <script>
-import { getQueryCourses } from '@/services/course'
+// import { getQueryCourses } from '@/services/course'
 export default {
   name: 'CourseContentList',
+  props: {
+    // 用于请求数据的函数
+    fetchData: {
+      type: Function,
+      required: true
+    }
+  },
   data () {
     return {
       // 用来存储数据
@@ -57,7 +64,14 @@ export default {
       // 还原数据页数为 1
       this.currentPage = 1
       // 重新请求数据
-      const { data } = await getQueryCourses({
+      /* const { data } = await getQueryCourses({
+        currentPage: this.currentPage,
+        pageSize: 10
+      })
+      // 清空并课程数据
+      this.list = data.data.records */
+      // 请求数据
+      const { data } = await this.fetchData({
         currentPage: this.currentPage,
         pageSize: 10,
         status: 1
@@ -72,10 +86,15 @@ export default {
       this.isRefreshing = false
     },
     async onLoad () {
-      const { data } = await getQueryCourses({
+      /* const { data } = await getQueryCourses({
+        currentPage: this.currentPage,
+        pageSize: 10
+      })
+      // 保存课程数据
+      this.list.push(...data.data.records) */
+      const { data } = await this.fetchData({
         currentPage: this.currentPage,
         pageSize: 10,
-        // 代表上架课程
         status: 1
       })
       if (data.data && data.data.records && data.data.records.length !== 0) {
