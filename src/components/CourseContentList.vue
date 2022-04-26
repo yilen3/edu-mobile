@@ -7,23 +7,26 @@
     >
     <!-- 列表组件 -->
       <van-list
-      v-model="loading"
-      :finished="finished"
-      finished-text="没有更多了"
-      @load="onLoad"
-    >
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoad"
+      >
       <van-cell
         v-for="item in list"
         :key="item.id">
         <!-- 左侧图片 -->
         <div>
-          <img :src="item.courseImgUrl" alt="">
+        <!-- 所有课程与已购课程的图片数据属性名不同，检测后使用 -->
+          <img :src="item.courseImgUrl || item.image" alt="">
         </div>
         <!-- 课程右侧信息 -->
         <div class="course-info">
-          <h3 v-text="item.courseName"></h3>
+          <!-- 名称检测 -->
+          <h3 v-text="item.courseName || item.name"></h3>
           <p class="course-preview" v-html="item.previewFirstField"></p>
-          <p class="price-container">
+          <!-- 如果为已购课程，无需显示价格区域 -->
+          <p class="price-container" v-if="item.price">
             <span class="course-discount">￥{{ item.discounts }}</span>
             <s class="course-price">￥{{ item.price }}</s>
           </p>
@@ -63,14 +66,6 @@ export default {
     async onRefresh () {
       // 还原数据页数为 1
       this.currentPage = 1
-      // 重新请求数据
-      /* const { data } = await getQueryCourses({
-        currentPage: this.currentPage,
-        pageSize: 10
-      })
-      // 清空并课程数据
-      this.list = data.data.records */
-      // 请求数据
       const { data } = await this.fetchData({
         currentPage: this.currentPage,
         pageSize: 10,
@@ -79,6 +74,8 @@ export default {
       // 下拉刷新需要清除所有数据，直接赋值给 this.list,存在数据且数据不为空再进行存储
       if (data.data && data.data.records && data.data.records.length !== 0) {
         this.list = data.data.records
+      } else if (data.content && data.content.length !== 0) {
+        this.list = data.content
       }
       // 提示(整体引入，和 element 一样)
       this.$toast('刷新成功')
@@ -86,12 +83,6 @@ export default {
       this.isRefreshing = false
     },
     async onLoad () {
-      /* const { data } = await getQueryCourses({
-        currentPage: this.currentPage,
-        pageSize: 10
-      })
-      // 保存课程数据
-      this.list.push(...data.data.records) */
       const { data } = await this.fetchData({
         currentPage: this.currentPage,
         pageSize: 10,
@@ -99,13 +90,17 @@ export default {
       })
       if (data.data && data.data.records && data.data.records.length !== 0) {
         this.list.push(...data.data.records)
+      } else if (data.content && data.content.length !== 0) {
+        this.list.push(...data.content)
       }
       // 下次请求下一页
       this.currentPage++
       // 加载状态结束
       this.loading = false
       // 数据全部加载完成
-      if (data.data.records.length < 10) {
+      if (data.data && data.data.records && data.data.records.length < 10) {
+        this.finished = true
+      } else if (data.content && data.content.length < 10) {
         this.finished = true
       }
     }
