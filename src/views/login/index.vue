@@ -44,9 +44,16 @@
 </template>
 
 <script>
+import { NavBar, Form, Button, Field, Toast } from 'vant'
 import { login } from '@/services/user'
 export default {
   name: 'Login',
+  components: {
+    VanNavBar: NavBar,
+    VanForm: Form,
+    VanButton: Button,
+    VanField: Field
+  },
   data () {
     return {
       form: {
@@ -65,13 +72,13 @@ export default {
       this.isLoading = true
       const { data } = await login(this.form)
       if (data.state === 1) {
-        this.$toast.success('登陆成功')
+        Toast.success('登陆成功')
         // 将用户信息存储到 state 中
         this.$store.commit('setUser', data.content)
         // 跳转
         this.$router.push(this.$route.query.redirect || '/')
       } else {
-        this.$toast.fail('登陆失败，请检查账号密码是否有误')
+        Toast.fail('登陆失败，请检查账号密码是否有误')
       }
       // 取消加载状态
       this.isLoading = false

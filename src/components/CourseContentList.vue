@@ -46,8 +46,14 @@
 
 <script>
 // import { getQueryCourses } from '@/services/course'
+import { PullRefresh, List, Cell, Toast } from 'vant'
 export default {
   name: 'CourseContentList',
+  components: {
+    VanPullRefresh: PullRefresh,
+    VanList: List,
+    VanCell: Cell
+  },
   props: {
     // 用于请求数据的函数
     fetchData: {
@@ -85,7 +91,7 @@ export default {
         this.list = data.content
       }
       // 提示(整体引入，和 element 一样)
-      this.$toast('刷新成功')
+      Toast('刷新成功')
       // 关闭下拉提示框
       this.isRefreshing = false
     },

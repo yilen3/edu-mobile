@@ -57,12 +57,19 @@
 </template>
 
 <script>
+import { Cell, CellGroup, Button, Tab, Tabs, Tabbar } from 'vant'
 import { getCourseById, getSectionAndLesson } from '@/services/course'
 import CourseSection from '@/views/course-info/components/CourseSection'
 export default {
   name: 'CourseInfo',
   components: {
-    CourseSection
+    CourseSection,
+    VanCell: Cell,
+    VanCellGroup: CellGroup,
+    VanButton: Button,
+    VanTab: Tab,
+    VanTabs: Tabs,
+    VanTabbar: Tabbar
   },
   props: {
     courseId: {

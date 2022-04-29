@@ -44,16 +44,25 @@
             </van-cell-group>
           </van-radio-group>
         </div>
-        <van-button>￥{{ course.discounts }} 立即支付</van-button>
+        <van-button @click="handlePay">￥{{ course.discounts }} 立即支付</van-button>
       </van-cell>
     </van-cell-group>
   </div>
 </template>
 
 <script>
+import { CellGroup, Cell, Radio, RadioGroup, Button, Toast } from 'vant'
 import { getCourseById } from '@/services/course'
+import { createOrder, initPayment, getaPayResult } from '@/services/pay'
 export default {
   name: 'Pay',
+  components: {
+    VanCellGroup: CellGroup,
+    VanCell: Cell,
+    VanRadio: Radio,
+    VanRadioGroup: RadioGroup,
+    VanButton: Button
+  },
   props: {
     courseId: {
       type: [String, Number],
@@ -64,13 +73,51 @@ export default {
     return {
       // 课程信息
       course: [],
-      radio: '1'
+      radio: '1',
+      // 商品订单号
+      orderNo: null
     }
   },
   created () {
     this.loadCourse()
+    this.loadOrder()
   },
   methods: {
+    async handlePay () {
+      const { data } = await initPayment({
+        goodsOrderNo: this.orderNum,
+        channel: this.radio === '1' ? 'weChat' : 'aliPay',
+        returnUrl: 'http://edufront.lagounews.com'
+      })
+      // 接收响应地址，并进行跳转
+      window.location.href = data.content.payUrl
+
+      const timer = setInterval(async () => {
+        // 发起查询支付结果请求
+        const { data: payResult } = await getaPayResult({
+          orderNo: data.content.orderNo
+        })
+        if (payResult.content && payResult.content.status === 2) {
+          clearInterval(timer)
+          Toast.success('购买成功')
+          this.$router.push({
+            name: 'learn'
+          })
+        }
+      }, 1000)
+    },
+    async loadOrder () {
+      // 创建订单，获取订单号
+      const { data } = await createOrder({
+        goodsId: this.courseId
+      })
+      this.orderNo = data.content.orderNo
+      // 获取支付方式
+    //   const { data: payInfo } = await getPayInfo({
+    //     shopOrderNo: this.ordero
+    //   })
+    //   console.log(payInfo)
+    },
     async loadCourse () {
       const { data } = await getCourseById({
         courseId: this.courseId

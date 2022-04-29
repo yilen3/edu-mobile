@@ -14,8 +14,12 @@
 
 <script>
 import { getVideoInfo } from '@/services/course'
+import { NavBar } from 'vant'
 export default {
   name: 'CourseVideo',
+  components: {
+    VanNavBar: NavBar
+  },
   props: {
     lessonId: {
       type: [String, Number],
